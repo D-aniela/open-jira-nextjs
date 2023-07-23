@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Entry } from '@/interfaces'
 
 import { entriesReducer, EntriesContext } from './'
+import { NewEntry } from '../../components/ui/NewEntry'
 
 export interface EntriesState {
   entries: Entry[]
@@ -13,19 +14,22 @@ const ENTRIES_INITIAL_STATE: EntriesState = {
   entries: [
     {
       _id: uuidv4(),
-      description: 'Pendiente: Lorem ipsum dolor sit, amet consectetur adipisicing elit.',
+      description:
+        'Pendiente: Lorem ipsum dolor sit, amet consectetur adipisicing elit.',
       status: 'pending',
       createdAt: Date.now(),
     },
     {
       _id: uuidv4(),
-      description: 'En progreso: Lorem ipsum dolor sit, amet consectetur adipisicing elit.',
+      description:
+        'En progreso: Lorem ipsum dolor sit, amet consectetur adipisicing elit.',
       status: 'in-progress',
       createdAt: Date.now() - 1000000,
     },
     {
       _id: uuidv4(),
-      description: 'Finalizado: Lorem ipsum dolor sit, amet consectetur adipisicing elit.',
+      description:
+        'Finalizado: Lorem ipsum dolor sit, amet consectetur adipisicing elit.',
       status: 'finished',
       createdAt: Date.now() - 100000,
     },
@@ -34,11 +38,29 @@ const ENTRIES_INITIAL_STATE: EntriesState = {
 
 export const EntriesProvider: FC = ({ children }) => {
   const [state, dispatch] = useReducer(entriesReducer, ENTRIES_INITIAL_STATE)
+  const addNewEntry = (description: string) => {
+    const newEntry: Entry = {
+      _id: uuidv4(),
+      description,
+      createdAt: Date.now(),
+      status: 'pending',
+    }
+
+    dispatch({
+      type: '[Entry] Add-Entry',
+      payload: newEntry,
+    })
+  }
 
   return (
-    <EntriesContext.Provider value={{ ...state }}>
+    <EntriesContext.Provider
+      value={{
+        ...state,
+        // methods
+        addNewEntry,
+      }}
+    >
       {children}
     </EntriesContext.Provider>
   )
 }
-
