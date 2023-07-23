@@ -1,4 +1,4 @@
-import { EntriesState } from './'
+import { EntriesState } from '.'
 type EntriesActionType = 
 | { type: 'Entries - ActionName' }
 
