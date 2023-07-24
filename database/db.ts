@@ -11,35 +11,32 @@ const mongooConnection = {
 }
 
 export const connect = async () => {
-  if (mongooConnection.isConnected) {
-    console.log('Ya estabamos conectados')
-    return
-  }
+  const host = process.env.MONGO_DB_HOST
+  const db = process.env.MONGO_DB_NAME
+  const user = process.env.MONGO_DB_USER
+  const password = process.env.MONGO_DB_PASSWORD
 
-  if (mongoose.connections.length > 0) {
-    mongooConnection.isConnected = mongoose.connections[0].readyState
+  let mongodbUrl = `mongodb://${host}/${db}`
 
-    if (mongooConnection.isConnected === 1) {
-      console.log('Usando conexión anterior')
-      return
+  if (user && password) {
+    console.log('---- mongodb auth ----')
+    const authOptions = {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      user: user,
+      pass: password,
+      authSource: 'admin'
     }
-
-    await mongoose.disconnect()
+    return mongoose.connect(mongodbUrl, authOptions)
   }
 
-	let mongodbUrl = `mongodb://${process.env.MONGO_DB_HOST}:5000/${process.env.MONGO_DB_NAME}`
-	console.log(mongodbUrl)
-
-  await mongoose.connect(mongodbUrl || '')
-  mongooConnection.isConnected = 1
-  console.log('Conectado a MongoDB:', mongodbUrl)
+  return mongoose.connect(mongodbUrl)
 }
 
 export const disconnect = async () => {
-  if (process.env.NODE_ENV === 'development') return
-
-  if (mongooConnection.isConnected === 0) return
-
-  await mongoose.disconnect()
-  console.log('Desconectado de MongoDB')
+  if(process.env.NODE_ENV === 'development') return
+  if (mongooConnection.isConnected) {
+    await mongoose.disconnect()
+    mongooConnection.isConnected = 0
+  }
 }
