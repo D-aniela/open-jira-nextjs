@@ -38,17 +38,22 @@ const updateEntry = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const { description = entry.description, status = entry.status } = req.body
 
-  const updatedEntry = await Entry.findByIdAndUpdate(
-    id,
-    {
-      description,
-      status,
-    },
-    {
-      runValidators: true, // Para que verifique los enums del status
-      new: true, // Para que nos regrese la informacion actualizada
-    },
-  )
-
-  res.status(200).json(updateEntry!)
+  try {
+    const updatedEntry = await Entry.findByIdAndUpdate(
+      id,
+      {
+        description,
+        status,
+      },
+      {
+        runValidators: true, // Para que verifique los enums del status
+        new: true, // Para que nos regrese la informacion actualizada
+      },
+    )
+    res.status(200).json(updatedEntry!)
+  } catch (error: any) {
+    console.log({ error })
+    await db.disconnect()
+    res.status(400).json({ message: error.errors.status.message})
+  }
 }
