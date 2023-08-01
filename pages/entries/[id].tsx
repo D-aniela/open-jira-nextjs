@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useMemo, useState } from 'react'
+import { ChangeEvent, FC, useContext, useMemo, useState } from 'react'
 import { GetServerSideProps } from 'next'
 import {
   Button,
@@ -21,6 +21,7 @@ import { Layout } from '@/components/layouts'
 import { Entry, EntryStatus } from '@/interfaces'
 
 import { dbEntries } from '@/database'
+import { EntriesContext } from '@/context/entries'
 
 const validStatus: EntryStatus[] = ['pending', 'in-progress', 'finished']
 
@@ -29,6 +30,8 @@ interface Props {
 }
 
 const EntryPage: FC<Props> = ({ entry }) => {
+  const { updateEntry } = useContext(EntriesContext)
+
   const [inputValue, setInputValue] = useState(entry.description)
   const [status, setStatus] = useState<EntryStatus>(entry.status)
   const [touched, setTouched] = useState(false)
@@ -47,9 +50,13 @@ const EntryPage: FC<Props> = ({ entry }) => {
   }
 
   const onSave = () => {
-    setTouched(true)
-    if (!inputValue) return
-    console.log('Saving entry...')
+    if(inputValue.trim().length === 0) return
+    const updatedEntry: Entry ={
+      ...entry,
+      status,
+      description: inputValue,
+    }
+    updateEntry(updatedEntry, true)
   }
 
   return (
